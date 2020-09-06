@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<h1>{{ survey.title }}</h1>
+<h2>{{ survey.description }}</h2>
+<hr>
+
+{% for question in survey.questions %}
+
+    <div>
+        <h3>{{ question.index + 1 }} - {{ question.text }}</h3>
+        <ul>
+        {% for answer in question.answers_as_list() %}
+            <li>{{ answer }} - {{ question.response_results()[answer][0] }} ({{ question.response_results()[answer][1] }}%)</li>
+        {% endfor %}
+
+        </ul>
+        <a href="{{ url_for('admin_question_details', survey_id=survey.id, question_id=question.id) }}">Details</a>
+    </div>
+
+{% endfor %}
+
+{% endblock %}

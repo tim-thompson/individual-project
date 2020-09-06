@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<div><p>{{ survey.title }} - {{ survey.description }}</p></div>
+
+<form action="" method="post">
+
+{% for question in survey.questions %}
+
+    <div>
+        <p>{{ question.text }}
+            <br>
+        {% for answer in question.answers_as_list() %}
+            <label for="{{answer}}">{{answer}}</label>
+            <input type="radio" id="{{answer}}" name="{{question.index}}" value="{{answer}}">
+        {% endfor %}
+        </p>
+    </div>
+
+{% endfor %}
+    <input type="submit" value="Submit">
+
+</form>
+
+{% endblock %}

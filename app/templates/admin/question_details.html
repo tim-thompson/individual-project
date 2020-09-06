@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <div>
+        {{ question.text }}
+        <ul>
+        {% for answer in question.answers_as_list() %}
+            <li>{{ answer }} - {{ question.response_results()[answer][0] }} ({{ question.response_results()[answer][1] }}%)</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div style="width: 400px; height: 300px">
+        <canvas id="question-chart-{{question.id}}"></canvas>
+    </div>
+
+    <script>
+    var ctx = document.getElementById('question-chart-{{question.id}}');
+    var labels = {{question.answers_as_list()|tojson}}
+    var data = {{question.chart_data()|tojson}}
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                backgroundColor: "turquoise",
+                barPercentage: 1.0,
+                barThickness: 25,
+                minBarLength: 2,
+                data: data
+            }]
+        }
+    });
+    </script>
+
+<ul>
+{% for answer in question.answers_as_list() %}
+    <li> {{ answer }}
+        <ul>
+            {% if users[answer]|length == 0 %}
+                <div><p><b>No users chose this answer.</b></p></div>
+            {% else %}
+                {% for user in users.get(answer) %}
+                <li>{{ user.username }} - {{ user.email }}</li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock %}
