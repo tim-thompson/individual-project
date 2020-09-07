@@ -5,8 +5,23 @@
 {% if surveys|length == 0 %}
 <div><p><b>There are no surveys that need responses.</b></p></div>
 {% else %}
-{% for survey in surveys %}
-<div><p>{{ survey.title }} - <b>{{ survey.description }} - <a href="{{ url_for('survey_response', survey_id=survey.id) }}">Respond</a></b></p></div>
-{% endfor %}
+<table class="table table-striped">
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Actions</th>
+    </tr>
+    {% for survey in surveys %}
+    <tr>
+        <td>{{ survey.title }}</td>
+        <td>{{ survey.description }}</td>
+        <td>{{ survey.start_date }}</td>
+        <td>{{ survey.end_date }}</td>
+        <td><a href="{{ url_for('survey_response', survey_id=survey.id) }}">Respond</a></td>
+    </tr>
+    {% endfor %}
+</table>
 {% endif %}
 {% endblock %}

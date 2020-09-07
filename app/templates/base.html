@@ -34,7 +34,7 @@
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     {% else %}
                     {% if current_user.role == "ADMIN" %}
-                        <li><a href="{{ url_for('admin_surveys_list') }}">Admin</a></li>
+                        <li><a href="{{ url_for('admin_index') }}">Admin</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% endif %}

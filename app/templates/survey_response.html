@@ -2,24 +2,30 @@
 
 {% block app_content %}
 
-<div><p>{{ survey.title }} - {{ survey.description }}</p></div>
+<h1>{{ survey.title }}</h1>
+<h2>{{ survey.description }}</h2>
+<hr>
 
 <form action="" method="post">
 
-{% for question in survey.questions %}
+    {% for question in survey.questions %}
 
     <div>
-        <p>{{ question.text }}
-            <br>
-        {% for answer in question.answers_as_list() %}
-            <label for="{{answer}}">{{answer}}</label>
-            <input type="radio" id="{{answer}}" name="{{question.index}}" value="{{answer}}">
-        {% endfor %}
-        </p>
+        <h3>{{ question.text }}</h3>
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            {% for answer in question.answers_as_list() %}
+                <label class="btn btn-primary active">
+                    <input class="form-check-input" type="radio" id="{{answer}}" name="{{question.index}}" value="{{answer}}">{{answer}}
+                </label>
+            {% endfor %}
+        </div>
     </div>
 
-{% endfor %}
-    <input type="submit" value="Submit">
+    {% endfor %}
+
+    <p style="padding-top: 20px">
+        <input type="submit" class="padding btn btn-primary" value="Submit">
+    </p>
 
 </form>
 

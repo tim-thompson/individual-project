@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1>Admin Dashboard</h1>
+<div>
+    <ul>
+        <li><a href="{{url_for('admin_new_survey') }}">Create a New Survey</a></li>
+        <li><a href="{{ url_for('admin_surveys_list') }}">View Surveys and Responses</a></li>
+        <li><a href="{{ url_for('admin_create_new_user') }}">Create a New User</a></li>
+        <li><a href="{{ url_for('admin_view_users') }}">View and Edit Users</a></li>
+    </ul>
+</div>
+{% endblock %}

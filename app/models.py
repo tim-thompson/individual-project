@@ -10,9 +10,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     hashed_password = db.Column(db.String(128))
     role = db.Column(db.String(80), default="USER")
+    properties = db.Column(db.String(500))
 
-    responses = db.RelationshipProperty("Response", back_populates="user")
-    surveys = db.RelationshipProperty("Survey", back_populates="user")
+    responses = db.relationship("Response", back_populates="user")
+    surveys = db.relationship("Survey", back_populates="user")
 
     def completed_survey_ids(self):
         return set(response.question.survey_id for response in self.responses)
@@ -36,9 +37,10 @@ class Survey(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    properties = db.Column(db.String(500))
 
-    questions = db.RelationshipProperty("Question", back_populates="survey")
-    user = db.RelationshipProperty("User", back_populates="surveys")
+    questions = db.relationship("Question", back_populates="survey")
+    user = db.relationship("User", back_populates="surveys")
 
 
 class Question(db.Model):

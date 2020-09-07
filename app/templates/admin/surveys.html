@@ -5,13 +5,14 @@
 <h1>Surveys</h1>
 
 <table class="table table-striped">
-    <tr><th>Title</th><th>Description</th><th>Start Date</th><th>End Date</th><th>Owner</th><th>Actions</th></tr>
+    <tr><th>Title</th><th>Description</th><th>Start Date</th><th>End Date</th><th>Properties</th><th>Owner</th><th>Actions</th></tr>
     {% for survey in surveys %}
     <tr>
         <td>{{ survey.title }}</td>
         <td>{{ survey.description }}</td>
         <td>{{ survey.start_date }}</td>
         <td>{{ survey.end_date }}</td>
+        <td>{{ survey.properties }}</td>
         <td>{{ survey.user.username }}</td>
         <td><a href="{{ url_for('admin_survey_results', survey_id=survey.id) }}">View Results</a></td>
     </tr>

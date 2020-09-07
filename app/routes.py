@@ -6,7 +6,12 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
 from app import app, db
-from app.forms import LoginForm, CreateUserForm, CreateSurveyForm
+from app.forms import (
+    LoginForm,
+    CreateUserForm,
+    CreateSurveyForm,
+    EditUserForm,
+)
 from app.models import User, Survey, Question, Response
 
 
@@ -36,7 +41,19 @@ def index():
         current_date >= Survey.start_date,
         current_date <= Survey.end_date,
     ).all()
-    return render_template("index.html", title="Home", surveys=surveys)
+
+    filtered_surveys = []
+
+    for survey in surveys:
+        if survey.properties is None or survey.properties == "":
+            filtered_surveys.append(survey)
+        elif any(
+            user_property in survey.properties
+            for user_property in user.properties.split(",")
+        ):
+            filtered_surveys.append(survey)
+
+    return render_template("index.html", title="Home", surveys=filtered_surveys)
 
 
 @app.route("/login/", methods=["GET", "POST"])
@@ -87,6 +104,12 @@ def survey_response(survey_id):
     return render_template("survey_response.html", survey=survey)
 
 
+@app.route("/admin/")
+@role_required("ADMIN")
+def admin_index():
+    return render_template("admin/index.html")
+
+
 @app.route("/admin/surveys/")
 @role_required("ADMIN")
 def admin_surveys_list():
@@ -104,6 +127,7 @@ def admin_new_survey():
             description=form.description.data,
             start_date=form.start_date.data,
             end_date=form.end_date.data,
+            properties=form.properties.data.upper(),
             user_id=current_user.id,
         )
         db.session.add(survey)
@@ -140,21 +164,75 @@ def admin_question_details(survey_id, question_id):
         users[answer] = []
     if responses is not None:
         for response in responses:
+            print(response.response)
             users[response.response].append(response.user)
     return render_template(
         "admin/question_details.html", question=question, users=users
     )
 
 
+@app.route("/admin/users/")
+@role_required("ADMIN")
+def admin_view_users():
+    users = User.query.all()
+    return render_template("admin/users.html", users=users)
+
+
 @app.route("/admin/users/new/", methods=["GET", "POST"])
-def create_new_user():
+def admin_create_new_user():
     form = CreateUserForm()
+
     if form.validate_on_submit():
+        print(form.properties.data)
         role = "ADMIN" if form.admin.data else "USER"
-        user = User(username=form.username.data, email=form.email.data, role=role)
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            role=role,
+            properties=form.properties.data.upper(),
+        )
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash("User created successfully")
-        return redirect(url_for("create_new_user"))
-    return render_template("register.html", title="Create User", form=form)
+        return redirect(url_for("admin_create_new_user"))
+
+    return render_template("admin/register.html", title="Create User", form=form)
+
+
+@app.route("/admin/users/<user_id>/edit/", methods=["POST", "GET"])
+@role_required("ADMIN")
+def admin_edit_user(user_id):
+    form = EditUserForm()
+    user = User.query.filter_by(id=user_id).first()
+
+    if form.validate_on_submit():
+        role = "ADMIN" if form.admin.data else "USER"
+
+        user.username = form.username.data
+        user.email = form.email.data
+        user.role = role
+        user.properties = form.properties.data.upper()
+        if form.password.data != "":
+            user.set_password(form.password.data)
+        db.session.commit()
+
+        flash("User edited successfully")
+        return redirect(url_for("admin_view_users"))
+
+    form.admin.data = True if user.role == "ADMIN" else False
+    form.username.data = user.username
+    form.email.data = user.email
+    form.properties = user.properties
+
+    return render_template("admin/register.html", title="Edit User", form=form)
+
+
+@app.route("/admin/users/<user_id>/delete/")
+@role_required("ADMIN")
+def admin_delete_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is not None:
+        User.query.filter_by(id=user_id).delete()
+    db.session.commit()
+    return redirect(url_for("admin_view_users"))

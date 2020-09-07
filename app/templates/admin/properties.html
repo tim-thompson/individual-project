@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<h1>Properties</h1>
+
+<table class="table table-striped">
+    <tr><th>ID</th><th>Property Value</th></tr>
+    {% for property in properties %}
+    <tr>
+        <td>{{ property.id }}</td>
+        <td>{{ property.value }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
